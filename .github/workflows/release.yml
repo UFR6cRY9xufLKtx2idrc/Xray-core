@@ -72,6 +72,7 @@ jobs:
         # Include amd64 on all platforms.
         goos: [windows, freebsd, openbsd, linux, dragonfly, darwin]
         goarch: [amd64, 386]
+        goamd64: [v3]
         exclude:
           # Exclude i386 on darwin and dragonfly.
           - goarch: 386
@@ -153,6 +154,7 @@ jobs:
       GOOS: ${{ matrix.goos }}
       GOARCH: ${{ matrix.goarch }}
       GOARM: ${{ matrix.goarm }}
+      GOAMD64: ${{ matrix.goamd64 }}
       CGO_ENABLED: 0
     steps:
       - name: Checkout codebase
@@ -161,13 +163,13 @@ jobs:
       - name: Show workflow information 
         run: |
           export _NAME=$(jq ".[\"$GOOS-$GOARCH$GOARM$GOMIPS\"].friendlyName" -r < .github/build/friendly-filenames.json)
-          echo "GOOS: $GOOS, GOARCH: $GOARCH, GOARM: $GOARM, GOMIPS: $GOMIPS, RELEASE_NAME: $_NAME"
+          echo "GOOS: $GOOS, GOARCH: $GOARCH, GOARM: $GOARM, GOMIPS: $GOMIPS, GOAMD64: $GOAMD64, RELEASE_NAME: $_NAME"
           echo "ASSET_NAME=$_NAME" >> $GITHUB_ENV
 
       - name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
-          go-version: '1.20'
+          go-version: '^1.20'
           check-latest: true
 
       - name: Get project dependencies
@@ -249,3 +251,4 @@ jobs:
           file: ./Xray-${{ env.ASSET_NAME }}.zip*
           tag: ${{ github.ref }}
           file_glob: true
+          overwrite: true
